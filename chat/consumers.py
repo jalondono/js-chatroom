@@ -14,14 +14,6 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'tester_message',
-                'tester': 'hello world'
-            }
-        )
-
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
