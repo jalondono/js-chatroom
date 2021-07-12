@@ -77,23 +77,25 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 ASGI_APPLICATION = "core.routing.application"
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
-
 # CHANNEL_LAYERS = {
 #     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": ["redis://:paba35014f9446ea4e42a731d2a4f21fbbb40e88283864bf58a666f07fb747d1e@ec2-54-225-179-195"
-#                       ".compute-1.amazonaws.com:12260"],
-#         },
+#         "BACKEND": "channels.layers.InMemoryChannelLayer",
 #     },
 # }
 
-# CELERY_BROKER_URL = 'redis://:paba35014f9446ea4e42a731d2a4f21fbbb40e88283864bf58a666f07fb747d1e@ec2-54-225-179-195.compute-1.amazonaws.com:12260'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+            # "on_disconnect": "redis.disconnect",
+        },
+    },
+}
+# CELERY
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 

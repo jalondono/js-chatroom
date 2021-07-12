@@ -30,6 +30,7 @@
             chatSocket.send(JSON.stringify({
                 'message': message,
                 'username': user_username,
+                'action': "new_message"
             }));
             messageInputDom.value = '';
         };
@@ -44,10 +45,16 @@
             '/'
         );
 
+        chatSocket.onopen = function(e) {
+            fetchMessages();
+        };
         chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             console.log(data)
             document.querySelector('#chat-text').value += (data.username + ': ' + data.message + '\n')
+        }
+        function fetchMessages() {
+
         }
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
