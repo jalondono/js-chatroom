@@ -1,19 +1,21 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from . import forms
+
 
 # Create your views here.
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
+
+@login_required(login_url="/accounts/login/")
+def chat_room(request, room_name):
+    return render(request, 'chat/chatroom.html', {'room_name': room_name})
 
 
-# data = {'token': "dfdsfsdf545ds4f5"}
-# valid_data = VerifyJSONWebTokenSerializer().validate(data)
-# user = valid_data['user']
-
-def index(request):
-    return render(request, 'index.html', {})
-
-
-@permission_classes([IsAuthenticated])
-def room(request, room_name):
-    return render(request, 'chatroom.html', {'room_name': room_name})
+@login_required(login_url="/accounts/login/")
+def select_room(request):
+    if request.method == 'POST':
+        form = forms.SelectRoom(request.POST)
+        if form.is_valid():
+            return redirect('chat:room', room_name=form.data['room_name'])
+    else:
+        form = forms.SelectRoom()
+    return render(request, 'chat/selectroom.html', {'form': form})
