@@ -90,7 +90,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],
+            "hosts": [os.environ.get("CELERY_BROKER", "redis://redis:6379/0")],
             # "on_disconnect": "redis.disconnect",
         },
     },
@@ -107,8 +107,8 @@ CHANNEL_LAYERS = {
 # }
 
 # CELERY
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
