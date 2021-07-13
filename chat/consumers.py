@@ -86,19 +86,6 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
             result.append(item_message)
         return result
 
-    # @database_sync_to_async
-    # def fetch_messages(self):
-    #     result = []
-    #     room_id = Room.objects.get(name=self.room_name).id
-    #     messages = Message.objects.filter(room=room_id).order_by('-timestamp')[:50]
-    #     for item in messages:
-    #         result.append(self.message2json(item))
-    #     content = {
-    #         'action': 'messages',
-    #         'messages': result
-    #     }
-    #     self.send_message(content)
-
     @database_sync_to_async
     def save_message(self, data):
         room_obj = (Room.objects.filter(name=self.room_name).first())
@@ -125,3 +112,6 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
     def stock_request(self, match):
         tasks.stocksBot.delay(match.group(0)[7:], self.room_group_name)
         # /stock=aapl.us
+
+    async def message_from_task(self, event):
+        await self.send(text_data=json.dumps(event))
