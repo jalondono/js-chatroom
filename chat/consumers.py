@@ -3,6 +3,8 @@ import re
 from channels.db import database_sync_to_async
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+from . import tasks
 from .models import Room, Message
 from django.contrib.auth import get_user_model
 
@@ -35,15 +37,19 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
             message = {'username': text_data_json['username'],
                        'message': text_data_json['message']
                        }
-            await self.save_message(text_data_json)
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'chatroom_message',
-                    'message': message,
-                    'action': "new_message"
-                }
-            )
+            match = re.search(r'^/' + "stock" + '=.*([^\s]+)', text_data_json['message'])
+            if not match:
+                await self.save_message(text_data_json)
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'chatroom_message',
+                        'message': message,
+                        'action': "new_message"
+                    }
+                )
+            else:
+                self.stock_request(match)
         elif action == 'fetch_messages':
             result = await self.fetch_messages()
             content = {
@@ -115,3 +121,7 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
             'message': message.body,
             'timestamp': str(message.timestamp)
         }
+
+    def stock_request(self, match):
+        tasks.stocksBot.delay(match.group(0)[7:], self.room_group_name)
+        # /stock=aapl.us

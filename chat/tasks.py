@@ -9,5 +9,5 @@ import json
 
 @shared_task
 def stocksBot(stock_name, group_name: str):
-
-    pass
+    bot_result = {}
+    return bot_result
