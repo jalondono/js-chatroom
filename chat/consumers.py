@@ -27,38 +27,71 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data):
+        result = []
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        username = text_data_json['username']
         action = text_data_json['action']
+
         if action == 'new_message':
+            message = {'username': text_data_json['username'],
+                       'message': text_data_json['message']
+                       }
             await self.save_message(text_data_json)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'chatroom_message',
                     'message': message,
-                    'username': username,
+                    'action': "new_message"
                 }
             )
         elif action == 'fetch_messages':
-            await self.fetch_messages
+            result = await self.fetch_messages()
+            content = {
+                'action': 'messages',
+                'messages': result
+            }
+            await self.send_message(content)
 
     async def chatroom_message(self, event):
+        """Send messages to the chat room"""
         message = event['message']
-        username = event['username']
+        # username = event['username']
 
         await self.send(text_data=json.dumps({
             'message': message,
-            'username': username,
+            # 'username': username,
+            'action': "new_message"
         }))
 
+    async def send_message(self, message):
+        """Send a message to the user"""
+        await self.send(text_data=json.dumps(message))
+
     @database_sync_to_async
-    def fetch_messages(self, data):
+    def fetch_messages(self):
         result = []
-        messages = Message.objects.filter(room=self.room_name).order_by('-timestamp')[:50]
+        room_id = Room.objects.get(name=self.room_name).id
+        messages = Message.objects.filter(room=room_id).order_by('timestamp')[:50]
+        # the async context doesn't allow to fetch the relations of the models
         for item in messages:
-            result.append(self.message2json(item))
+            # room_name = Room.objects.get(pk=item.room_id)
+            author = User.objects.get(pk=item.author_id).username
+            item_message = self.message2json(item, author)
+            result.append(item_message)
+        return result
+
+    # @database_sync_to_async
+    # def fetch_messages(self):
+    #     result = []
+    #     room_id = Room.objects.get(name=self.room_name).id
+    #     messages = Message.objects.filter(room=room_id).order_by('-timestamp')[:50]
+    #     for item in messages:
+    #         result.append(self.message2json(item))
+    #     content = {
+    #         'action': 'messages',
+    #         'messages': result
+    #     }
+    #     self.send_message(content)
 
     @database_sync_to_async
     def save_message(self, data):
@@ -72,13 +105,13 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
             room=room_obj
         ))
 
-    def message2json(self, message):
+    def message2json(self, message, author):
         """
         Conver a message into  a dict object
         """
         return {
             'id': message.id,
-            'author': message.author.username,
-            'body': message.body,
+            'username': author,
+            'message': message.body,
             'timestamp': str(message.timestamp)
         }
