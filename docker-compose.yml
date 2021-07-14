@@ -2,7 +2,6 @@ version: "3.7"
 
 services:
   django:
-    restart: always
     build: .
     container_name: django
     command: python manage.py runserver 0.0.0.0:8000
@@ -18,7 +17,6 @@ services:
     depends_on:
       - redis
   celery:
-    restart: always
     build: .
     command: celery -A core worker -l INFO
     volumes:
