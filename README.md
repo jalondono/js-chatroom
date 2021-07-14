@@ -16,8 +16,17 @@ Be sure you have installed docker and docker-composed, then move into the app di
 ```./start_app.sh```
 It will create a container, then it will download images needed for the application and then start the django app running in localhost
 ```url app: http://127.0.0.1:8000```
+
+### Capabilities
+ - You can create new users and the login
+ - You can create more than one chat room
+ - You can get the get stock quotes sending the command ```/stock=stock_code```  in the chat
 ### Interface
 <img align="center" src="https://i.imgur.com/RQgmUTW.png" width="50%"/>
+
+### Chat Interface
+<img align="center" src="https://i.imgur.com/uCCxhMI.png" width="100%"/>
+
 
 ### Testing
 Be sure that celery and redis are running using the following commands:
