@@ -1,11 +1,6 @@
 # js-chatroom
-##Build the needed docker images 
-        sudo docker-compose run django
-##Break the execution
-        ctrl + c 
-##Apply migration to the database
-        sudo docker-compose run django python3 manage.py migrate
-##Run the docker container
-        docker-compose up
 
-# enjoy
+## To run the app be sure you have installed docker and docker-composed
+    run the bash script: ./start_app.sh
+## It will download the docker images needed for the application and then start the django app running in 
+    url app: http://127.0.0.1:8000
