@@ -37,19 +37,31 @@ class ChatRoomConsumer(AsyncWebsocketConsumer):
             message = {'username': text_data_json['username'],
                        'message': text_data_json['message']
                        }
-            match = re.search(r'^/' + "stock" + '=.*([^\s]+)', text_data_json['message'])
-            if not match:
-                await self.save_message(text_data_json)
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chatroom_message',
-                        'message': message,
-                        'action': "new_message"
-                    }
-                )
-            else:
-                self.stock_request(match)
+            if len(text_data_json['message']) > 0:
+                match = re.search(r'^/' + "stock" + '=.*([^\s]+)', text_data_json['message'])
+                if not match:
+                    if text_data_json['message'].startswith('/'):
+                        message = {
+                            'username': 'bot',
+                            'message': "Invalid code format, should be as follow: /stock=stock_code"
+                            }
+                        content = {
+                            'action': 'new_message',
+                            'message': message
+                        }
+                        await self.send_message(content)
+                    else:
+                        await self.save_message(text_data_json)
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'chatroom_message',
+                                'message': message,
+                                'action': "new_message"
+                            }
+                        )
+                else:
+                    self.stock_request(match)
         elif action == 'fetch_messages':
             result = await self.fetch_messages()
             content = {
