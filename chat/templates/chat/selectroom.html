@@ -1,0 +1,13 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<div class="create-article">
+        <h2>Insert the name of the ChatRoom</h2>
+        <form class="site-form" action="{% url 'chat:select' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Select">
+        </form>
+    </div>
+    <script src="/static/slugify.js"></script>
+{% endblock %}
