@@ -107,9 +107,6 @@ CHANNEL_LAYERS = {
 #     }
 # }
 
-# CELERY
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379")
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -165,3 +162,18 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
+def get_environment_variable(key, default=None):
+    try:
+        return os.environ[key]
+    except KeyError:
+        if default is not None:
+            return default
+        else:
+            raise KeyError("{0} is required as an environment variable".format(key))
+
+
+# CELERY
+CELERY_BROKER_URL = get_environment_variable("CELERY_BROKER", default="redis://127.0.0.1:6379")
+CELERY_RESULT_BACKEND = get_environment_variable("CELERY_BROKER", default="redis://127.0.0.1:6379")
