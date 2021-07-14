@@ -66,3 +66,4 @@ vine==5.0.0
 wcwidth==0.2.5
 zipp==3.5.0
 zope.interface==5.4.0
+django-nose==1.4.7
